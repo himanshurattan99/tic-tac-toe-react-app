@@ -3,7 +3,21 @@ import './App.css'
 import Cell from './components/Cell'
 
 function App() {
-  const [cells, setCells] = useState(Array(9).fill(''));
+  const [cells, setCells] = useState(Array(9).fill(''))
+  const [turn, setTurn] = useState('X')
+
+  const makeMove = (key) => {
+    if (cells[key] === '') {
+      setCells(cells.map((cell, index) => {
+        if (index === key) {
+          return turn
+        }
+        return cell
+      }))
+
+      setTurn((turn === 'X') ? 'O' : 'X')
+    }
+  }
 
   return (
     <>
@@ -11,8 +25,8 @@ function App() {
         <h2 className="text-2xl font-bold">Tic Tac Toe</h2>
 
         <div className="p-2 bg-sky-50 border-[0.2rem] border-blue-500 rounded-lg grid grid-cols-3 grid-rows-3 gap-2">
-          {cells.map((_, index) => (
-            <Cell key={index} />
+          {cells.map((cell, index) => (
+            <Cell onClick={() => makeMove(index)} key={index} mark={cell} />
           ))}
         </div>
 
