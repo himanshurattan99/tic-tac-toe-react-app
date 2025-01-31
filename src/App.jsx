@@ -3,10 +3,11 @@ import './App.css'
 import Cell from './components/Cell'
 
 function App() {
-  // Initialize game state: empty board, X goes first, no winner yet
+  // Initialize game state: empty board, X goes first, no winner yet, no winning line
   const [cells, setCells] = useState(Array(9).fill(''))
   const [turn, setTurn] = useState('X')
   const [winner, setWinner] = useState(null)
+  const [winningLine, setWinningLine] = useState([])
 
   // Check if current board state has a winning combination
   const checkWin = (board) => {
@@ -26,11 +27,12 @@ function App() {
     for (let line of lines) {
       const [a, b, c] = line
       if (board[a] && board[a] === board[b] && board[a] === board[c]) {
-        return true
+        // Return winning line indices
+        return line
       }
     }
 
-    return false
+    return null
   }
 
   // Check if the game is a tie (all cells filled)
@@ -53,9 +55,13 @@ function App() {
       // Update game board with the new move
       setCells(newCells)
 
+      // Check if the current move results in a win
+      const winLine = checkWin(newCells)
+
       // Check for win or tie, otherwise switch turns
-      if (checkWin(newCells)) {
+      if (winLine) {
         setWinner(turn)
+        setWinningLine(winLine)
       }
       else if (checkTie(newCells)) {
         setWinner('Tie')
@@ -71,6 +77,7 @@ function App() {
     setCells(Array(9).fill(''))
     setTurn('X')
     setWinner(null)
+    setWinningLine([])
   }
 
   return (
@@ -80,7 +87,7 @@ function App() {
 
         <div className="p-2 bg-sky-50 border-[0.2rem] border-blue-500 rounded-lg grid grid-cols-3 grid-rows-3 gap-2">
           {cells.map((cell, index) => (
-            <Cell onClick={() => makeMove(index)} key={index} mark={cell} />
+            <Cell onClick={() => makeMove(index)} key={index} mark={cell} highlight={winningLine.includes(index)} />
           ))}
         </div>
 
