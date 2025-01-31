@@ -33,6 +33,11 @@ function App() {
     return false
   }
 
+  // Check if the game is a tie (all cells filled)
+  const checkTie = (board) => {
+    return board.every(cell => cell !== '')
+  }
+
   // Handle player moves
   const makeMove = (key) => {
     // Only allow moves on empty cells and if game isn't won
@@ -45,16 +50,27 @@ function App() {
         return cell
       })
 
+      // Update game board with the new move
       setCells(newCells)
 
-      // Check for win or switch turns
+      // Check for win or tie, otherwise switch turns
       if (checkWin(newCells)) {
         setWinner(turn)
+      }
+      else if (checkTie(newCells)) {
+        setWinner('Tie')
       }
       else {
         setTurn((turn === 'X') ? 'O' : 'X')
       }
     }
+  }
+
+  // Reset the game to initial state
+  const resetGame = () => {
+    setCells(Array(9).fill(''))
+    setTurn('X')
+    setWinner(null)
   }
 
   return (
@@ -69,10 +85,10 @@ function App() {
         </div>
 
         <div className="w-full flex flex-col justify-center items-center gap-3">
-          <button type="reset" className="px-3 py-1 bg-blue-500 hover:bg-green-500 rounded text-gray-100 cursor-pointer">Reset</button>
+          <button onClick={resetGame} type="reset" className="px-3 py-1 bg-blue-500 hover:bg-green-500 rounded text-gray-100 cursor-pointer">Reset</button>
 
           <div className="px-8 py-3 bg-sky-50 border-2 border-blue-500 rounded-xl text-lg">
-            {(winner) ? `${winner} Wins!!!` : `${turn}'s Turn`}
+            {(winner === 'Tie') ? "It's a Tie!!!" : (winner) ? `${winner} Wins!` : `${turn}'s Turn`}
           </div>
         </div>
       </div>
