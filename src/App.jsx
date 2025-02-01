@@ -43,11 +43,15 @@ function App() {
 
   // Handle player moves
   const makeMove = (key) => {
-    // Check if move is invalid (cell filled or game won)
-    if (winner || cells[key] !== '') {
-      if (cells[key] !== '') {
-        setMoveError('This spot is already taken!!!')
-      }
+    // Don't show error if game is over
+    if (winner) {
+      setMoveError('Game is over!!! Click Reset to play again')
+      return
+    }
+
+    // Check if cell is already filled
+    if (cells[key] !== '') {
+      setMoveError('This spot is already taken!!!')
       return
     }
 
@@ -103,7 +107,7 @@ function App() {
           <div className="px-8 py-3 bg-sky-50 border-2 border-blue-500 rounded-xl text-lg">
             {(moveError) ? (<span className="text-red-500">{moveError}</span>) :
               (winner === 'Tie') ? "It's a Tie!!!" :
-                (winner) ? `${winner} Wins!` : `${turn}'s Turn`}
+                (winner) ? `${winner} Wins!!!` : `${turn}'s Turn`}
           </div>
         </div>
       </div>
