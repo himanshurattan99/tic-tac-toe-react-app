@@ -3,9 +3,10 @@ import './App.css'
 import Cell from './components/Cell'
 
 function App() {
-  // Initialize game state: empty board, X goes first, no winner yet, no winning line
+  // Initialize game state: empty board, X goes first, no error message, no winner yet, no winning line
   const [cells, setCells] = useState(Array(9).fill(''))
   const [turn, setTurn] = useState('X')
+  const [moveError, setMoveError] = useState('')
   const [winner, setWinner] = useState(null)
   const [winningLine, setWinningLine] = useState([])
 
@@ -42,33 +43,37 @@ function App() {
 
   // Handle player moves
   const makeMove = (key) => {
-    // Only allow moves on empty cells and if game isn't won
-    if (cells[key] === '' && !winner) {
-      // Create new board state with the player's mark
-      const newCells = cells.map((cell, index) => {
-        if (index === key) {
-          return turn
-        }
-        return cell
-      })
-
-      // Update game board with the new move
-      setCells(newCells)
-
-      // Check if the current move results in a win
-      const winLine = checkWin(newCells)
-
-      // Check for win or tie, otherwise switch turns
-      if (winLine) {
-        setWinner(turn)
-        setWinningLine(winLine)
+    // Check if move is invalid (cell filled or game won)
+    if (winner || cells[key] !== '') {
+      if (cells[key] !== '') {
+        setMoveError('This spot is already taken!!!')
       }
-      else if (checkTie(newCells)) {
-        setWinner('Tie')
-      }
-      else {
-        setTurn((turn === 'X') ? 'O' : 'X')
-      }
+      return
+    }
+
+    // Clear any previous error message
+    setMoveError('')
+
+    // Create new board state with the player's mark
+    const newCells = [...cells]
+    newCells[key] = turn
+
+    // Update game board with the new move
+    setCells(newCells)
+
+    // Check if the current move results in a win
+    const winLine = checkWin(newCells)
+
+    // Check for win or tie, otherwise switch turns
+    if (winLine) {
+      setWinner(turn)
+      setWinningLine(winLine)
+    }
+    else if (checkTie(newCells)) {
+      setWinner('Tie')
+    }
+    else {
+      setTurn((turn === 'X') ? 'O' : 'X')
     }
   }
 
@@ -76,6 +81,7 @@ function App() {
   const resetGame = () => {
     setCells(Array(9).fill(''))
     setTurn('X')
+    setMoveError('')
     setWinner(null)
     setWinningLine([])
   }
@@ -95,7 +101,9 @@ function App() {
           <button onClick={resetGame} type="reset" className="px-3 py-1 bg-blue-500 hover:bg-green-500 rounded text-gray-100 cursor-pointer">Reset</button>
 
           <div className="px-8 py-3 bg-sky-50 border-2 border-blue-500 rounded-xl text-lg">
-            {(winner === 'Tie') ? "It's a Tie!!!" : (winner) ? `${winner} Wins!` : `${turn}'s Turn`}
+            {(moveError) ? (<span className="text-red-500">{moveError}</span>) :
+              (winner === 'Tie') ? "It's a Tie!!!" :
+                (winner) ? `${winner} Wins!` : `${turn}'s Turn`}
           </div>
         </div>
       </div>
